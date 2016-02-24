@@ -25,6 +25,8 @@ var Vector3 = THREE.Vector3;
 var Face3 = THREE.Face3;
 var Point = objects.Point;
 var CScreen = config.Screen;
+var Clock = THREE.Clock;
+var FirstPersonControls = THREE.FirstPersonControls;
 //Custom Game Objects
 var gameObject = objects.gameObject;
 // setup an IIFE structure (Immediately Invoked Function Expression)
@@ -43,11 +45,24 @@ var game = (function () {
     var gui;
     var stats;
     var step = 0;
+    var clock;
+    var firstPersonControls;
     function init() {
         // Instantiate a new Scene object
         //scene = new Scene();
+        clock = new Clock(); // setup clock
         setupRenderer(); // setup the default renderer
         setupCamera(); // setup the camera
+        // setup first person controls
+        firstPersonControls = new FirstPersonControls(camera);
+        firstPersonControls.lookSpeed = 0.4;
+        firstPersonControls.movementSpeed = 10;
+        firstPersonControls.lookVertical = true;
+        firstPersonControls.constrainVertical = true;
+        firstPersonControls.verticalMin = 0;
+        firstPersonControls.verticalMax = 2.0;
+        firstPersonControls.lon = -150;
+        firstPersonControls.lat = 120;
         //Add a Plane to the Scene
         plane = new gameObject(new PlaneGeometry(20, 20, 1, 1), new LambertMaterial({ color: 0xf4a460 }), 0, 0, 0);
         plane.rotation.x = -0.5 * Math.PI;
@@ -106,7 +121,9 @@ var game = (function () {
     // Setup main game loop
     function gameLoop() {
         stats.update();
+        var delta = clock.getDelta();
         sphere.rotation.y += control.rotationSpeed;
+        firstPersonControls.update(delta);
         // render using requestAnimationFrame
         requestAnimationFrame(gameLoop);
         // render the scene

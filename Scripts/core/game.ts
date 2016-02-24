@@ -27,6 +27,8 @@ import Vector3 = THREE.Vector3;
 import Face3 = THREE.Face3;
 import Point = objects.Point;
 import CScreen = config.Screen;
+import Clock = THREE.Clock;
+import FirstPersonControls = THREE.FirstPersonControls;
 
 //Custom Game Objects
 import gameObject = objects.gameObject;
@@ -48,16 +50,29 @@ var game = (() => {
     var gui: GUI;
     var stats: Stats;
     var step: number = 0;
+    var clock: Clock;
+    var firstPersonControls: FirstPersonControls;
 
     function init() {
         // Instantiate a new Scene object
         //scene = new Scene();
 
+        clock = new Clock(); // setup clock
+
         setupRenderer(); // setup the default renderer
 	
         setupCamera(); // setup the camera
 	
-        
+        // setup first person controls
+        firstPersonControls = new FirstPersonControls(camera);
+        firstPersonControls.lookSpeed = 0.4;
+        firstPersonControls.movementSpeed  = 10;
+        firstPersonControls.lookVertical = true;
+        firstPersonControls.constrainVertical = true;
+        firstPersonControls.verticalMin = 0;
+        firstPersonControls.verticalMax = 2.0;
+        firstPersonControls.lon = -150;
+        firstPersonControls.lat = 120;
     
         //Add a Plane to the Scene
         plane = new gameObject(
@@ -131,8 +146,11 @@ var game = (() => {
     // Setup main game loop
     function gameLoop(): void {
         stats.update();
+        var delta:number = clock.getDelta();
 
         sphere.rotation.y += control.rotationSpeed;
+        
+        firstPersonControls.update(delta);
     
         // render using requestAnimationFrame
         requestAnimationFrame(gameLoop);
